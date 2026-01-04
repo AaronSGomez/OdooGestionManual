@@ -62,3 +62,55 @@
    ```bash
    cd /opt/odoo18/odoo/custom
    git clone [https://github.com/tu_usuario/software_erp.git](https://github.com/tu_usuario/software_erp.git)
+   ```
+2. **Reiniciar el servicio de Odoo** para cargar el nuevo módulo:
+   ```bash
+   sudo systemctl restart odoo18.service
+   ```
+3. **Actualizar la lista de aplicaciones** en Odoo:
+   - Activa el *Modo Desarrollador* (Ajustes ➡️ Activar modo desarrollador).
+   - Ve al menú superior *Aplicaciones* ➡️ *Actualizar lista de aplicaciones*.
+   - Confirma el diálogo de actualización.
+   - En la barra de búsqueda, escribe **"FireApp ERP"**.
+   - Haz clic en el botón **Instalar** (o **Actualizar** si ya lo tenías).
+
+---
+
+## 📂 Estructura del Proyecto
+
+Este módulo sigue la estructura estándar de Odoo 18:
+## 📂 Estructura del Proyecto
+
+Este módulo sigue la estructura estándar de Odoo 18:
+
+```text
+software_erp/
+├── __init__.py              # Inicializador del paquete Python
+├── __manifest__.py          # Metadatos, dependencias y carga de archivos
+├── models/                  # Lógica de Negocio (Tablas BBDD)
+│   ├── __init__.py
+│   └── software_module.py   # Clases: Proyectos, Commits, Liquidaciones
+├── views/                   # Interfaz de Usuario (XML)
+│   └── software_views.xml   # Formularios, Listas, Menús y Acciones
+├── security/                # Seguridad y Permisos
+│   └── ir.model.access.csv  # ACLs (Listas de Control de Acceso)
+├── demo/                    # Datos de Demostración
+│   └── demo_data.xml        # Proyectos, facturas y commits de ejemplo
+└── static/
+    └── description/         # Recursos estáticos (Icono del módulo)
+```
+
+---
+
+## 👤 Autor
+
+**Aarón Gómez Abella**
+- 🎓 Estudiante de 2º DAM - Sistemas de Gestión Empresarial
+- 📧 nomeacuerdobien@gmail.com
+- 🔗 https://www.linkedin.com/in/aaron-gomez-abella-b6667174/
+
+---
+
+## 📄 Licencia
+
+Este proyecto se distribuye bajo la licencia **LGPL-3** (GNU Lesser General Public License v3.0).
