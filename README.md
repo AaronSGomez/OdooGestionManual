@@ -47,7 +47,7 @@
 | Ficha de Proyecto | Facturación Mensual |
 |:---:|:---:|
 | ![Ficha Proyecto](assets/semaforo.png) | ![Facturacion](assets/facturacion.png) |
-*(Reemplaza estos enlaces con tus capturas reales en la carpeta /static/description/ o súbelas al repo)*
+
 
 ---
 
