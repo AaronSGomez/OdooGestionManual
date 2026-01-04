@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manual Apache Proxy Inverso - Odoo</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="document-page">
+        <h1>Configuración de Apache como Proxy Inverso</h1>
+        <p>El objetivo de este manual es configurar el servidor web Apache para que actúe como intermediario. De esta forma, al acceder a la IP o dominio del servidor (Puerto 80), veremos nuestro Odoo sin necesidad de escribir <code>:8069</code>.</p>
+
+        <h2>1. Activación de módulos necesarios</h2>
+        <p>Apache viene con muchos módulos desactivados por defecto para ahorrar recursos. Necesitamos activar los módulos de <em>proxy</em> para que pueda redirigir el tráfico.</p>
+        
+        <div class="terminal">
+            <span class="comment"># Instalamos Apache si no lo tenías ya</span>
+            <span class="cmd">sudo apt install apache2 -y</span>
+            <br><br>
+            <span class="comment"># Activamos los módulos de proxy y reescritura de cabeceras</span>
+            <span class="cmd">sudo a2enmod proxy</span><br>
+            <span class="cmd">sudo a2enmod proxy_http</span><br>
+            <span class="cmd">sudo a2enmod headers</span><br>
+            <span class="cmd">sudo a2enmod rewrite</span>
+            <br><br>
+            <span class="comment"># Reiniciamos para aplicar cambios</span>
+            <span class="cmd">sudo systemctl restart apache2</span>
+        </div>
+
+        <h2>2. Creación del VirtualHost</h2>
+        <p>Vamos a crear un archivo de configuración específico para tu sitio. Esto le dice a Apache: <em>"Cuando alguien entre por aquí, mándalo al puerto 8069"</em>.</p>
+
+        <div class="terminal">
+            <span class="comment"># Creamos el archivo de configuración para odoo</span>
+            <span class="cmd">sudo nano /etc/apache2/sites-available/odoo.conf</span>
+        </div>
+
+        <p>Pega el siguiente contenido. Asegúrate de cambiar <code>midominio.com</code> por tu IP o tu dominio real si lo tienes.</p>
+        
+        <div class="file-content"><pre>
+&lt;VirtualHost *:80&gt;
+    ServerName midominio.com
+    ServerAlias www.midominio.com
+    
+    # Opcional: Si no tienes dominio usa tu IP pública o localhost
+    # ServerName 192.168.1.XX
+
+    # Logs específicos para detectar errores fácil
+    ErrorLog ${APACHE_LOG_DIR}/odoo_error.log
+    CustomLog ${APACHE_LOG_DIR}/odoo_access.log combined
+
+    # Configuración del Proxy (La magia)
+    ProxyRequests Off
+    ProxyPreserveHost On
+
+    # Redirigir tráfico raíz (/) a Odoo (8069)
+    ProxyPass / http://127.0.0.1:8069/
+    ProxyPassReverse / http://127.0.0.1:8069/
+
+    # IMPORTANTE: Redirección para el chat de Odoo (Longpolling)
+    # El chat suele usar el puerto 8072 por defecto
+    ProxyPass /longpolling/ http://127.0.0.1:8072/
+    ProxyPassReverse /longpolling/ http://127.0.0.1:8072/
+    
+    # Arreglar cabeceras para que Odoo sepa que viene de un proxy
+    RequestHeader set X-Forwarded-Proto "http"
+&lt;/VirtualHost&gt;
+        </pre></div>
+
+        <h2>3. Activar el sitio y probar</h2>
+        <p>Ahora tenemos que decirle a Apache que habilite este nuevo archivo de configuración y deshabilite el que viene por defecto (la página de "It Works").</p>
+
+        <div class="terminal">
+            <span class="comment"># Desactivamos el sitio por defecto de Apache</span>
+            <span class="cmd">sudo a2dissite 000-default.conf</span>
+            <br><br>
+            <span class="comment"># Activamos nuestro sitio de Odoo</span>
+            <span class="cmd">sudo a2ensite odoo.conf</span>
+            <br><br>
+            <span class="comment"># Comprobamos que no hemos cometido errores de sintaxis</span>
+            <span class="cmd">sudo apache2ctl configtest</span>
+            <br><br>
+            <span class="comment"># Si sale "Syntax OK", recargamos Apache</span>
+            <span class="cmd">sudo systemctl reload apache2</span>
+        </div>
+
+        <div class="note">
+            <strong>Resultado final:</strong> Ahora, si pones la IP de tu servidor en el navegador (sin :8069), deberías ver directamente la pantalla de login de Odoo.
+        </div>
+        
+        <h2>4. Extra: Ajuste en Odoo (Opcional pero recomendado)</h2>
+        <p>Para mayor seguridad, es bueno decirle a Odoo que está funcionando detrás de un proxy. Editamos de nuevo el config de Odoo.</p>
+        
+        <div class="terminal">
+            <span class="comment"># Editamos la configuración de Odoo</span>
+            <span class="cmd">sudo nano /etc/odoo18.conf</span>
+        </div>
+        
+        <p>Añade o descomenta esta línea al final del archivo:</p>
+        <div class="file-content">
+proxy_mode = True
+        </div>
+        
+        <div class="terminal">
+             <span class="comment"># Reiniciamos Odoo</span>
+            <span class="cmd">sudo systemctl restart odoo18</span>
+        </div>
+        <hr style="margin: 40px 0; border: 0; border-top: 1px solid #ddd;">
+
+        <div style="text-align: center; margin-bottom: 40px;">
+            <a href="index.html" style="
+                display: inline-block;
+                background-color: #2c3e50;
+                color: white;
+                padding: 12px 30px;
+                text-decoration: none;
+                border-radius: 50px;
+                font-weight: bold;
+                box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+                transition: transform 0.2s;
+            " onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                &larr; Volver a la Portada
+            </a>
+        </div>
+
+    </div>
+
+</body>
+</html>

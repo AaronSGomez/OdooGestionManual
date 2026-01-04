@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manual de Instalación Odoo 18 - Ubuntu 24.04</title>
+    <link rel="stylesheet" href="style.css">
+  </head>
+<body>
+
+    <div class="document-page">
+        <h1>Instalación de Odoo 18 en Ubuntu 24.04 LTS</h1>
+        <p>Este documento detalla los pasos necesarios para desplegar Odoo 18 Community Edition en un entorno de producción o desarrollo bajo Linux.</p>
+
+        <h2>1. Preparación del Sistema</h2>
+        <p>Primero, actualizamos el sistema e instalamos las dependencias básicas necesarias para Python y la gestión de paquetes.</p>
+        
+        <div class="terminal">
+            <span class="comment"># Actualizamos repositorios y sistema</span>
+            <span class="cmd">sudo apt update && sudo apt upgrade -y</span>
+            <br><br>
+            <span class="comment"># Instalamos Git, Pip y librerías de desarrollo básicas</span>
+            <span class="cmd">sudo apt install git python3-pip python3-dev libxml2-dev libxslt1-dev zlib1g-dev libsasl2-dev libldap2-dev build-essential libssl-dev libffi-dev libmysqlclient-dev libjpeg-dev libpq-dev libjpeg8-dev liblcms2-dev libblas-dev libatlas-base-dev -y</span>
+        </div>
+
+        <h2>2. Configuración de PostgreSQL</h2>
+        <p>Odoo necesita una base de datos PostgreSQL. Vamos a instalarla y crear un usuario dedicado.</p>
+
+        <div class="terminal">
+            <span class="comment"># Instalamos el servidor y cliente de BBDD</span>
+            <span class="cmd">sudo apt install postgresql postgresql-client -y</span>
+            <br><br>
+            <span class="comment"># Creamos el usuario de base de datos 'odoo18'</span>
+            <span class="cmd">sudo su - postgres -c "createuser -s odoo18"</span>
+            <br><br>
+            <span class="comment"># Entramos a la consola SQL para ponerle contraseña</span>
+            <span class="cmd">sudo su - postgres</span><br>
+            <span class="cmd">psql</span>
+            <br>
+            <span class="comment"># OJO: No olvidar el punto y coma al final</span>
+            <span class="cmd">ALTER ROLE odoo18 WITH PASSWORD 'admin';</span>
+            <br>
+            <span class="cmd">\q</span> <span class="comment"># Salimos de psql</span>
+            <span class="cmd">exit</span> <span class="comment"># Salimos del usuario postgres</span>
+        </div>
+
+        <h2>3. Creación del Usuario del Sistema</h2>
+        <p>Por seguridad, Odoo no debe ejecutarse como root. Creamos un usuario de sistema llamado <code>odoo18</code> con su propia carpeta home en <code>/opt/odoo18</code>.</p>
+
+        <div class="terminal">
+            <span class="comment"># Creamos usuario con home en /opt/odoo18</span>
+            <span class="cmd">sudo useradd -m -d /opt/odoo18 -U -r -s /bin/bash odoo18</span>
+        </div>
+
+        <h2>4. Descarga del Código y Entorno Virtual</h2>
+        <p>Ahora clonaremos el código fuente de Odoo y prepararemos el entorno aislado de Python (venv).</p>
+
+        <div class="terminal">
+            <span class="comment"># Instalamos herramienta para entornos virtuales</span>
+            <span class="cmd">sudo apt install python3-venv -y</span>
+            <br><br>
+            <span class="comment"># Cambiamos al usuario odoo18 para hacer la instalación</span>
+            <span class="cmd">sudo su - odoo18</span>
+            <br><br>
+            <span class="comment"># Clonamos el repositorio (rama 18.0)</span>
+            <span class="cmd">git clone https://github.com/odoo/odoo.git --depth 1 --branch 18.0 --single-branch odoo</span>
+            <br><br>
+            <span class="comment"># Creamos el entorno virtual llamado 'venv'</span>
+            <span class="cmd">python3 -m venv venv</span>
+            <br><br>
+            <span class="comment"># Activamos el entorno</span>
+            <span class="cmd">source venv/bin/activate</span>
+            <br><br>
+            <span class="comment"># Instalamos las dependencias de Python</span>
+            <span class="cmd">pip install wheel</span><br>
+            <span class="cmd">pip install -r odoo/requirements.txt</span>
+            <br><br>
+            <span class="comment"># Desactivamos el entorno por un momento</span>
+            <span class="cmd">deactivate</span><br>
+            <span class="cmd">exit</span> <br><span class="comment"># Salimos del usuario odoo18 para volver a tu usuario normal</span>
+        </div>
+
+        <h2>5. Archivo de Configuración</h2>
+        <p>Creamos el archivo de configuración <code>odoo.conf</code>. Lo guardaremos en una ruta accesible.</p>
+
+        <div class="terminal">
+            <span class="comment"># Creamos el archivo (usando sudo porque /etc requiere permisos)</span>
+            <span class="cmd">sudo nano /etc/odoo18.conf</span>
+        </div>
+
+        <p>Pega el siguiente contenido dentro del archivo:</p>
+        <div class="file-content"><pre>
+[options]
+; Esta es la contraseña maestra para crear BBDD (Mantenla segura)
+admin_passwd = admin
+db_host = False
+db_port = False
+db_user = odoo18
+db_password = admin
+addons_path = /opt/odoo18/odoo/addons
+logfile = /var/log/odoo/odoo18.log
+        </pre></div>
+        <div class="terminal">
+            <span class="comment"># Crear carpeta de logs y dar permisos</span>
+            <span class="cmd">sudo mkdir /var/log/odoo</span><br>
+            <span class="cmd">sudo chown odoo18:odoo18 /var/log/odoo</span>
+        </div>
+
+        <h2>6. Automatización: Crear Servicio (Systemd)</h2>
+        <p>Para que Odoo arranque automáticamente al encender el servidor y se ejecute en segundo plano, creamos un servicio.</p>
+
+        <div class="terminal">
+            <span class="comment"># Creamos el archivo de servicio</span>
+            <span class="cmd">sudo nano /etc/systemd/system/odoo18.service</span>
+        </div>
+
+        <p>Contenido del archivo de servicio:</p>
+        <div class="file-content"><pre>
+[Unit]
+Description=Odoo 18
+Documentation=http://www.odoo.com
+; Iniciar después de que la red y postgres estén listos
+After=network.target postgresql.service
+
+[Service]
+; Usuario que ejecutará el servicio
+User=odoo18
+Group=odoo18
+; Ruta donde está instalado
+SyslogIdentifier=odoo18
+PermissionsStartOnly=true
+Type=simple
+; Comando de ejecución: Python del venv + binario de Odoo + Configuración
+ExecStart=/opt/odoo18/venv/bin/python3 /opt/odoo18/odoo/odoo-bin -c /etc/odoo18.conf
+StandardOutput=journal+console
+
+[Install]
+WantedBy=multi-user.target
+        </pre></div>
+
+        <p>Finalmente, habilitamos y arrancamos el servicio:</p>
+
+        <div class="terminal">
+            <span class="comment"># Recargar el demonio de servicios</span>
+            <span class="cmd">sudo systemctl daemon-reload</span>
+            <br><br>
+            <span class="comment"># Habilitar para arranque automático</span>
+            <span class="cmd">sudo systemctl enable odoo18</span>
+            <br><br>
+            <span class="comment"># Arrancar el servicio ahora</span>
+            <span class="cmd">sudo systemctl start odoo18</span>
+            <br><br>
+            <span class="comment"># Ver estado del servicio</span>
+            <span class="cmd">sudo systemctl status odoo18</span>
+        </div>
+
+        <div class="note">
+            <strong>¡Todo listo!</strong> Abre tu navegador en: <code>http://localhost:8069</code> (o la IP de tu servidor).
+        </div>
+        <hr style="margin: 40px 0; border: 0; border-top: 1px solid #ddd;">
+
+        <div style="text-align: center; margin-bottom: 40px;">
+            <a href="index.html" style="
+                display: inline-block;
+                background-color: #2c3e50;
+                color: white;
+                padding: 12px 30px;
+                text-decoration: none;
+                border-radius: 50px;
+                font-weight: bold;
+                box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+                transition: transform 0.2s;
+            " onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                &larr; Volver a la Portada
+            </a>
+        </div>
+    </div>
+
+</body>
+</html>

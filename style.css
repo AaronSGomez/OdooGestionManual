@@ -1,0 +1,134 @@
+        /* Estilos generales tipo Documento */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f0f2f5;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .document-page {
+            max-width: 850px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 50px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border-radius: 8px;
+        }
+
+        h1 {
+            color: #2c3e50;
+            border-bottom: 2px solid #714b67; /* Color Odoo */
+            padding-bottom: 10px;
+        }
+
+        h2 {
+            color: #714b67;
+            margin-top: 30px;
+        }
+
+        h3 {
+            color: #444;
+            margin-top: 25px;
+            font-weight: 600;
+            font-size: 1.1em;
+        }
+
+
+        p, li {
+            font-size: 16px;
+        }
+        
+        ul {
+            list-style-type: square;
+        }
+
+
+        /* Estilos para simular la Terminal */
+        .terminal {
+            background-color: #1e1e1e;
+            color: #d4d4d4;
+            padding: 15px;
+            border-radius: 6px;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 14px;
+            overflow-x: auto;
+            margin: 15px 0;
+            border-left: 5px solid #4caf50; /* Línea verde indicando "runnable" */
+        }
+
+        .cmd {
+            color: #fff;
+            font-weight: bold;
+        }
+
+        .comment {
+            color: #6a9955;
+            font-style: italic;
+            display: block; /* Cada comentario en su línea */
+            margin-top: 5px;
+        }
+
+        .file-content {
+            background-color: #fffff0;
+            border: 1px solid #ccc;
+            padding: 15px;
+            font-family: monospace;
+            color: #555;
+            border-left: 5px solid #6c4ef0;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+           
+        }
+        .file-content pre {
+
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        .note {
+            background-color: #e8f4fd;
+            border-left: 4px solid #2196f3;
+            padding: 15px;
+            margin: 15px 0;
+        }
+
+         .file-header {
+            background-color: #444;
+            color: #fff;
+            padding: 5px 10px;
+            font-size: 12px;
+            font-family: monospace;
+            border-top-left-radius: 4px;
+            border-top-right-radius: 4px;
+            margin-top: 15px;
+            display: inline-block;
+        }
+
+                .structure-tree {
+            font-family: monospace;
+            white-space: pre;
+            background: #2d2d2d;
+            color: #fff;
+            padding: 15px;
+            border-radius: 5px;
+        }
+/* Contenedor para asegurar que la imagen esté centrada y separada */
+.screenshot-container {
+    text-align: center;       /* Centra la imagen horizontalmente */
+    margin: 30px 0;           /* Espacio arriba y abajo */
+    width: 100%;              /* Ocupa todo el ancho disponible */
+    overflow: hidden;         /* Evita cualquier desbordamiento accidental */
+}
+
+/* Estilo de la imagen en sí */
+.screenshot-container img {
+    max-width: 100%;          /* CRUCIAL: La imagen nunca será más ancha que su padre */
+    height: auto;             /* Mantiene la proporción (no se deforma) */
+    border-radius: 12px;      /* Esquinas redondeadas (ajusta el px a tu gusto) */
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15); /* Sombra suave para darle "pop" */
+    border: 1px solid #e0e0e0; /* Un borde sutil para definir los límites claros */
+    display: inline-block;    /* Comportamiento correcto dentro del text-align center */
+}

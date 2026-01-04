@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guía Maestra: Software ERP (Versión Avanzada)</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="document-page">
+        <h1>Guía de Desarrollo: Módulo "Software ERP" 3.0</h1>
+        <p>Esta guía contiene el código final para el módulo de gestión de proyectos, incluyendo <strong>facturación mensual, bonos de horas, semáforos de estado y lógica de costes avanzada</strong>.</p>
+
+        <div class="note">
+            <strong>Compatibilidad:</strong> Odoo 18.0 (Uso de etiqueta <code>list</code> y propiedades <code>invisible</code> modernas).
+        </div>
+
+        <h2>1. El Manifiesto (__manifest__.py)</h2>
+        <p>Configuración del módulo y carga de archivos en el orden correcto.</p>
+        
+        <div class="file-header">software_erp/__manifest__.py</div>
+        <div class="file-content"><pre>
+{
+    'name': "FireApp ERP",
+    'version': "18.0.2.0",
+    'summary': "Gestión Avanzada de Proyectos y Facturación",
+    'description': "ERP para Software Labs con gestión de Bonos y Mantenimiento.",
+    'author': "Aaron Gomez",
+    'category': "Services/Project",
+    'website': "pi5appserver.ddns.net",
+    'maintainer': "AaronSGomez",
+    'sequence': 1,
+    
+    # Archivos Estructurales (Siempre se cargan)
+    'data': [
+        'security/ir.model.access.csv',
+        'views/software_views.xml',
+    ],
+    
+    # Datos de Ejemplo (Solo si 'Load Demo Data' está activo)
+    'demo': [
+        'demo/demo_data.xml',
+    ],
+    
+    'application': True,
+    'installable': True,
+    'license': "LGPL-3"
+}
+        </pre></div>
+
+        <h2>2. Los Modelos (Lógica Python)</h2>
+        <p>Incluye la lógica de <strong>Packs Iniciales</strong>, la <strong>Bolsa de Horas Global</strong> y la <strong>Calculadora Inteligente</strong> de facturas.</p>
+
+        <div class="file-header">software_erp/models/software_module.py</div>
+        <div class="file-content"><pre>
+from odoo import models, fields, api
+
+class SoftwareErpModule(models.Model):
+    _name = 'software.erp.module'
+    _description = 'Software ERP Module'
+
+    name = fields.Char(string="Nombre del Proyecto", required=True)
+    version = fields.Char(string="Versión Actual")
+    creation_date = fields.Date(string="Fecha Inicio", default=fields.Date.today)
+    screenshot = fields.Image(string="Captura", max_width=1920, max_height=1080)
+    description = fields.Text(string="Descripción Técnica")
+    
+    # --- CONTRATO INICIAL ---
+    pack_type = fields.Selection([
+        ('basic', 'Pack Básico (200€)'),
+        ('standard', 'Pack Estándar (500€)'),
+        ('premium', 'Pack Premium (1000€)'),
+        ('custom', 'A Medida')
+    ], string="Pack Inicial", default='custom')
+
+    base_price = fields.Float(string="Precio Pack (€)", default=0.0)
+    included_hours = fields.Float(string="Horas Pack Inicial", default=0.0)
+    
+    # --- TARIFAS ---
+    hourly_rate = fields.Float(string="Precio Hora Extra (€)", default=50.0)
+    recurring_price = fields.Float(string="Cuota Mantenimiento (€)", default=18.0)
+    
+    # --- BOLSA DE HORAS GLOBAL ---
+    total_bonus_hours = fields.Float(string="Horas Extra Compradas", compute="_compute_global_balance", store=True)
+    total_capacity = fields.Float(string="Capacidad Total", compute="_compute_global_balance", store=True)
+    total_consumed = fields.Float(string="Total Consumido", compute="_compute_global_balance", store=True)
+    
+    # SEMÁFORO: Horas que quedan
+    hours_remaining = fields.Float(string="Horas Restantes", compute="_compute_global_balance", store=True)
+    project_cost = fields.Float(string="Coste Total", compute="_compute_global_balance", store=True)
+    
+    # RELACIONES
+    commit_ids = fields.One2many('software.erp.commit', 'module_id', string="Commits")
+    settlement_ids = fields.One2many('software.erp.settlement', 'module_id', string="Facturación")
+
+    @api.onchange('pack_type')
+    def _on_pack_change(self):
+        if self.pack_type == 'basic':
+            self.base_price = 200.0; self.included_hours = 10.0; self.hourly_rate = 60.0
+        elif self.pack_type == 'standard':
+            self.base_price = 500.0; self.included_hours = 30.0; self.hourly_rate = 50.0
+        elif self.pack_type == 'premium':
+            self.base_price = 1000.0; self.included_hours = 80.0; self.hourly_rate = 40.0
+
+    @api.depends('commit_ids.hours_spent', 'base_price', 'included_hours', 'settlement_ids.new_pack_hours')
+    def _compute_global_balance(self):
+        for record in self:
+            consumed = sum(c.hours_spent for c in record.commit_ids)
+            bonuses = sum(s.new_pack_hours for s in record.settlement_ids)
+            capacity = record.included_hours + bonuses
+            
+            record.total_consumed = consumed
+            record.total_bonus_hours = bonuses
+            record.total_capacity = capacity
+            record.hours_remaining = capacity - consumed
+            
+            # Coste estimado (Informativo)
+            record.project_cost = record.base_price + max(0, consumed - capacity) * record.hourly_rate
+
+class SoftwareSettlement(models.Model):
+    _name = 'software.erp.settlement'
+    _description = 'Liquidación Mensual'
+    _order = 'date_start desc'
+
+    name = fields.Char(compute="_compute_name", store=True)
+    module_id = fields.Many2one('software.erp.module', required=True)
+    date_start = fields.Date(required=True)
+    date_end = fields.Date(required=True)
+    monthly_fee = fields.Float(string="Cuota Base")
+    
+    # VENTA DE BONOS
+    bonus_type = fields.Selection([
+        ('none', 'Sin Bono Extra'),
+        ('small', 'Bono 10h (150€)'),
+        ('medium', 'Bono 20h (280€)'),
+        ('large', 'Bono 50h (600€)'),
+    ], default='none', string="Vender Bono")
+
+    new_pack_price = fields.Float(string="Precio Bono")
+    new_pack_hours = fields.Float(string="Horas Bono")
+
+    # RESULTADOS CÁLCULO
+    hours_month = fields.Float(readonly=True)
+    hours_discounted = fields.Float(readonly=True)
+    hours_billable = fields.Float(readonly=True)
+    total_amount = fields.Float(readonly=True)
+    state = fields.Selection([('draft', 'Borrador'), ('done', 'Cerrado')], default='draft')
+
+    @api.depends('date_start')
+    def _compute_name(self):
+        for r in self:
+            r.name = f"Factura {r.date_start.strftime('%m/%Y')}" if r.date_start else 'Nueva'
+
+    @api.onchange('bonus_type')
+    def _on_bonus_change(self):
+        if self.bonus_type == 'none': self.new_pack_price = 0; self.new_pack_hours = 0
+        elif self.bonus_type == 'small': self.new_pack_price = 150; self.new_pack_hours = 10
+        elif self.bonus_type == 'medium': self.new_pack_price = 280; self.new_pack_hours = 20
+        elif self.bonus_type == 'large': self.new_pack_price = 600; self.new_pack_hours = 50
+
+    def action_calculate(self):
+        for record in self:
+            if record.monthly_fee == 0.0: record.monthly_fee = record.module_id.recurring_price
+            
+            # 1. Calcular Horas del Mes
+            commits_month = self.env['software.erp.commit'].search([
+                ('module_id', '=', record.module_id.id), ('date', '>=', record.date_start), 
+                ('date', '<=', record.date_end)])
+            hours_this_month = sum(c.hours_spent for c in commits_month)
+
+            # 2. Calcular Bolsa Disponible (Histórico)
+            commits_before = self.env['software.erp.commit'].search([
+                ('module_id', '=', record.module_id.id), ('date', '<', record.date_start)])
+            consumed_before = sum(c.hours_spent for c in commits_before)
+            
+            other_settlements = record.module_id.settlement_ids - record
+            bonus_before = sum(s.new_pack_hours for s in other_settlements)
+            
+            capacity_now = record.module_id.included_hours + bonus_before + record.new_pack_hours
+            saldo_disponible = max(0, capacity_now - consumed_before)
+            
+            # 3. Aplicar descuentos
+            hours_covered = min(hours_this_month, saldo_disponible)
+            hours_to_pay = hours_this_month - hours_covered
+
+            record.hours_month = hours_this_month
+            record.hours_discounted = hours_covered
+            record.hours_billable = hours_to_pay
+            record.total_amount = record.monthly_fee + record.new_pack_price +
+             (hours_to_pay * record.module_id.hourly_rate)
+            record.state = 'done'
+
+class SoftwareCommit(models.Model):
+    _name = 'software.erp.commit'
+    _description = 'Commit Diario'
+    name = fields.Char(required=True)
+    date = fields.Date(default=fields.Date.today)
+    category = fields.Selection([('analysis', 'Análisis'),
+     ('development', 'Desarrollo'), ('qa', 'Pruebas'), ('maintenance', 'Mantenimiento')], required=True)
+    hours_spent = fields.Float()
+    module_id = fields.Many2one('software.erp.module', required=True)
+    user_id = fields.Many2one('res.users', default=lambda self: self.env.user)
+        </pre></div>
+
+        <h2>3. Seguridad (Permisos)</h2>
+        <p>Habilitamos el acceso a las 3 tablas (Module, Commit, Settlement).</p>
+
+        <div class="file-header">software_erp/security/ir.model.access.csv</div>
+        <div class="file-content">
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_software_module,access_software_module,model_software_erp_module,base.group_user,1,1,1,1
+access_software_commit,access_software_commit,model_software_erp_commit,base.group_user,1,1,1,1
+access_software_settlement,access_software_settlement,model_software_erp_settlement,base.group_user,1,1,1,1
+        </div>
+
+        <h2>4. Vistas (XML Odoo 18)</h2>
+        <p>Interfaz limpia con Semáforo de horas, selectores condicionales y Galería.</p>
+
+        <div class="file-header">software_erp/views/software_views.xml</div>
+        <div class="file-content"><pre>
+&lt;odoo&gt;
+    &lt;record id="view_software_module_form" model="ir.ui.view"&gt;
+        &lt;field name="name"&gt;software.erp.module.form&lt;/field&gt;
+        &lt;field name="model"&gt;software.erp.module&lt;/field&gt;
+        &lt;field name="arch" type="xml"&gt;
+            &lt;form&gt;
+                &lt;sheet&gt;
+                    &lt;div class="oe_title"&gt;
+                        &lt;h1&gt;&lt;field name="name" placeholder="Nombre del Proyecto"/&gt;&lt;/h1&gt;
+                    &lt;/div&gt;
+                    &lt;group&gt;
+                        &lt;group string="Contrato"&gt;
+                            &lt;field name="pack_type" widget="radio" options="{'horizontal': true}"/&gt;
+                            &lt;field name="included_hours" widget="float_time" string="Pack Inicial"/&gt;
+                            &lt;field name="total_bonus_hours" widget="float_time" string="+ Bonos Comprados"/&gt;
+                            &lt;field name="total_capacity" widget="float_time" class="oe_subtotal_footer_separator"/&gt;
+                        &lt;/group&gt;
+                        &lt;group string="Estado Bolsa"&gt;
+                             &lt;field name="total_consumed" widget="float_time"/&gt;
+                             &lt;field name="hours_remaining" widget="float_time" decoration-success="hours_remaining &gt; 0" decoration-danger="hours_remaining &lt; 0" style="font-size: 1.5em; font-weight: bold;"/&gt;
+                             &lt;div class="oe_inline text-muted" invisible="hours_remaining &lt; 0"&gt;Disponibles&lt;/div&gt;
+                             &lt;div class="oe_inline text-danger" invisible="hours_remaining &gt;= 0"&gt;Excedidas&lt;/div&gt;
+                        &lt;/group&gt;
+                    &lt;/group&gt;
+                    &lt;notebook&gt;
+                        &lt;page string="Trabajo Diario"&gt;
+                            &lt;field name="commit_ids"&gt;
+                                &lt;list editable="bottom" decoration-info="category == 'analysis'" decoration-success="category == 'development'"&gt;
+                                    &lt;field name="date"/&gt;
+                                    &lt;field name="user_id"/&gt;
+                                    &lt;field name="category"/&gt;
+                                    &lt;field name="name"/&gt;
+                                    &lt;field name="hours_spent" sum="Total"/&gt;
+                                &lt;/list&gt;
+                            &lt;/field&gt;
+                        &lt;/page&gt;
+                        &lt;page string="Facturación Mensual"&gt;
+                            &lt;field name="settlement_ids"&gt;
+                                &lt;list editable="bottom"&gt;
+                                    &lt;field name="date_start"/&gt;
+                                    &lt;field name="date_end"/&gt;
+                                    &lt;field name="monthly_fee" widget="monetary" optional="show"/&gt;
+                                    &lt;field name="bonus_type"/&gt;
+                                    &lt;field name="new_pack_price" widget="monetary" force_save="1" invisible="bonus_type == 'none'"/&gt;
+                                    &lt;field name="new_pack_hours" widget="float_time" force_save="1" invisible="bonus_type == 'none'" decoration-success="1"/&gt;
+                                    &lt;field name="hours_month" optional="show"/&gt;
+                                    &lt;field name="hours_discounted" optional="show" decoration-success="1"/&gt;
+                                    &lt;field name="hours_billable" optional="show" decoration-danger="1"/&gt;
+                                    &lt;field name="total_amount" widget="monetary" decoration-bf="1"/&gt;
+                                    &lt;field name="state" invisible="1"/&gt;
+                                    &lt;button name="action_calculate" type="object" icon="fa-calculator"/&gt;
+                                &lt;/list&gt;
+                            &lt;/field&gt;
+                        &lt;/page&gt;
+                        &lt;page string="Galería"&gt;
+                            &lt;group&gt;&lt;field name="screenshot" widget="image" options='{"zoom": true, "size": [0, 0]}' class="oe_avatar_big"/&gt;&lt;/group&gt;
+                        &lt;/page&gt;
+                        &lt;page string="Config"&gt;
+                            &lt;group&gt;&lt;field name="hourly_rate"/&gt;&lt;field name="recurring_price"/&gt;&lt;/group&gt;
+                        &lt;/page&gt;
+                    &lt;/notebook&gt;
+                &lt;/sheet&gt;
+            &lt;/form&gt;
+        &lt;/field&gt;
+    &lt;/record&gt;
+
+    &lt;record id="view_software_module_tree" model="ir.ui.view"&gt;
+        &lt;field name="name"&gt;software.erp.module.list&lt;/field&gt;
+        &lt;field name="model"&gt;software.erp.module&lt;/field&gt;
+        &lt;field name="arch" type="xml"&gt;
+            &lt;list&gt;
+                &lt;field name="name"/&gt;
+                &lt;field name="pack_type"/&gt;
+                &lt;field name="hours_remaining" widget="float_time" decoration-danger="hours_remaining &lt; 0"/&gt;
+                &lt;field name="project_cost" widget="monetary"/&gt;
+            &lt;/list&gt;
+        &lt;/field&gt;
+    &lt;/record&gt;
+
+    &lt;record id="action_software_module" model="ir.actions.act_window"&gt;
+        &lt;field name="name"&gt;Gestor de Proyectos&lt;/field&gt;
+        &lt;field name="res_model"&gt;software.erp.module&lt;/field&gt;
+        &lt;field name="view_mode"&gt;list,form&lt;/field&gt;
+    &lt;/record&gt;
+
+    &lt;menuitem id="menu_software_root" name="Software ERP" sequence="10"/&gt;
+    &lt;menuitem id="menu_software_main" parent="menu_software_root" name="Desarrollo" sequence="1"/&gt;
+    &lt;menuitem id="menu_software_module" parent="menu_software_main" name="Proyectos" action="action_software_module"/&gt;
+&lt;/odoo&gt;
+        </pre></div>
+
+        <h2>5. Datos de Demostración</h2>
+        <p>Datos precargados con historial de 2025 para probar la calculadora.</p>
+        
+        <div class="file-header">software_erp/demo/demo_data.xml</div>
+        <div class="file-content"><pre>
+&lt;odoo&gt;
+    &lt;data noupdate="1"&gt;
+        &lt;!-- PROYECTO 1: BARATO --&gt;
+        &lt;record id="demo_proj_web" model="software.erp.module"&gt;
+            &lt;field name="name"&gt;Web Corporativa 2025&lt;/field&gt;
+            &lt;field name="pack_type"&gt;basic&lt;/field&gt;
+            &lt;field name="recurring_price"&gt;15.00&lt;/field&gt;
+            &lt;field name="hourly_rate"&gt;40.00&lt;/field&gt;
+        &lt;/record&gt;
+        &lt;!-- Factura con Bono --&gt;
+        &lt;record id="settlement_web_feb" model="software.erp.settlement"&gt;
+            &lt;field name="module_id" ref="demo_proj_web"/&gt;
+            &lt;field name="date_start"&gt;2025-02-01&lt;/field&gt;
+            &lt;field name="date_end"&gt;2025-02-28&lt;/field&gt;
+            &lt;field name="monthly_fee"&gt;15.00&lt;/field&gt;
+            &lt;field name="bonus_type"&gt;small&lt;/field&gt;
+            &lt;field name="new_pack_price"&gt;150.00&lt;/field&gt;
+            &lt;field name="new_pack_hours"&gt;10.00&lt;/field&gt;
+            &lt;field name="state"&gt;done&lt;/field&gt;
+            &lt;field name="total_amount"&gt;165.00&lt;/field&gt;
+        &lt;/record&gt;
+
+        &lt;!-- PROYECTO 2: PREMIUM --&gt;
+        &lt;record id="demo_proj_erp" model="software.erp.module"&gt;
+            &lt;field name="name"&gt;Intranet RRHH&lt;/field&gt;
+            &lt;field name="pack_type"&gt;custom&lt;/field&gt;
+            &lt;field name="base_price"&gt;2000.00&lt;/field&gt;
+            &lt;field name="included_hours"&gt;100.00&lt;/field&gt;
+            &lt;field name="recurring_price"&gt;32.00&lt;/field&gt;
+            &lt;field name="hourly_rate"&gt;60.00&lt;/field&gt;
+        &lt;/record&gt;
+        &lt;!-- Historial de commits --&gt;
+        &lt;record id="commit_erp_1" model="software.erp.commit"&gt;
+            &lt;field name="name"&gt;Desarrollo Backend&lt;/field&gt;
+            &lt;field name="module_id" ref="demo_proj_erp"/&gt;
+            &lt;field name="date"&gt;2025-05-12&lt;/field&gt;
+            &lt;field name="hours_spent"&gt;30.0&lt;/field&gt;
+            &lt;field name="category"&gt;development&lt;/field&gt;
+        &lt;/record&gt;
+    &lt;/data&gt;
+&lt;/odoo&gt;
+        </pre></div>
+
+    <hr style="margin: 40px 0; border: 0; border-top: 2px solid #714b67;">
+
+        <h2>GUIA: Ciclo de Vida (Parar, Actualizar y Arrancar)</h2>
+        <p>Usa esta secuencia de comandos cada vez que modifiques código Python o XML y necesites aplicar los cambios.</p>
+
+        <div class="terminal">
+            <span class="comment"># 1. DETENER EL SERVICIO (Obligatorio para liberar el puerto)</span>
+            <span class="cmd">sudo systemctl stop odoo18.service</span>
+            <br><br>
+
+            <span class="comment"># 2. ENTRAR AL DIRECTORIO Y ACTIVAR ENTORNO VIRTUAL</span>
+            <span class="cmd">cd /opt/odoo18/odoo</span>
+            <span class="cmd">source /opt/odoo18/dev-venv/bin/activate</span>
+            <br><br>
+
+            <span class="comment"># 3. EJECUTAR ACTUALIZACIÓN DEL MÓDULO (Modo Pruebas)</span>
+            <span class="comment"># Esto lanza Odoo en la terminal. Si ves errores rojos, revísalos.</span>
+            <span class="cmd">python3 odoo-bin -c debian/odoo.conf -u software_erp -d odoo18</span>
+            <br><br>
+            <span class="comment"># --&gt; Abre el navegador y prueba tus cambios.</span>
+            <span class="comment"># --&gt; Cuando termines, pulsa CTRL + C para detener.</span>
+            <br><br>
+
+            <span class="comment"># 4. REACTIVAR EL SERVICIO (Modo Producción)</span>
+            <span class="comment"># Una vez verificado que el módulo funciona bien, levanta el servicio de fondo:</span>
+            <span class="cmd">sudo systemctl start odoo18.service</span>
+            
+            <span class="comment"># (Opcional) Comprobar que arrancó bien:</span>
+            <span class="cmd">sudo systemctl status odoo18.service</span>
+        </div>
+        <hr style="margin: 40px 0; border: 0; border-top: 1px solid #ddd;">
+
+        <div style="text-align: center; margin-bottom: 40px;">
+            <a href="index.html" style="
+                display: inline-block;
+                background-color: #2c3e50;
+                color: white;
+                padding: 12px 30px;
+                text-decoration: none;
+                border-radius: 50px;
+                font-weight: bold;
+                box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+                transition: transform 0.2s;
+            " onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                &larr; Volver a la Portada
+            </a>
+        </div>
+  </div>
+</body>
+</html>
