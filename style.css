@@ -173,3 +173,108 @@
     font-size: 0.85em;
     color: #888;
 }
+
+
+ .guide-hero {
+            background: linear-gradient(135deg, #714b67 0%, #2c3e50 100%);
+            color: #fff;
+            padding: 24px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            box-shadow: 0 8px 20px rgba(44, 62, 80, 0.25);
+        }
+
+        .guide-hero h2 {
+            color: #fff;
+            margin-top: 0;
+            margin-bottom: 10px;
+        }
+
+        .guide-hero p {
+            margin: 0;
+        }
+
+        .dev-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 12px;
+            margin: 18px 0;
+        }
+
+        .dev-card {
+            background: #f8f7fb;
+            border: 1px solid #e5dce3;
+            border-left: 4px solid #714b67;
+            padding: 12px;
+            border-radius: 8px;
+        }
+
+        .dev-card h4 {
+            margin: 0 0 6px;
+            color: #2c3e50;
+            font-size: 0.98rem;
+        }
+
+        .dev-card p {
+            margin: 0;
+            font-size: 0.95rem;
+        }
+
+        .phase-tag {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 0.2px;
+            margin-bottom: 8px;
+            background: #e8f4fd;
+            color: #1f5f8b;
+        }
+
+        .kpi-box {
+            background: #f4fbf6;
+            border: 1px solid #cde8d5;
+            border-radius: 8px;
+            padding: 14px;
+            margin-top: 18px;
+        }
+
+        .kpi-box ul {
+            margin: 8px 0 0;
+        }
+
+        .quick-start {
+            background: #fffdf7;
+            border: 1px solid #f2dfb4;
+            border-left: 5px solid #e0a800;
+            border-radius: 10px;
+            padding: 14px;
+            margin: 18px 0;
+        }
+
+        .dataset-list li {
+            margin-bottom: 10px;
+        }
+
+        .step-code {
+            background: #1f2937;
+            color: #f9fafb;
+            border-radius: 10px;
+            padding: 14px;
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 14px;
+            overflow-x: auto;
+            margin: 12px 0;
+        }
+
+        .capture-checklist {
+            background: #f5f9ff;
+            border: 1px solid #dbeafe;
+            border-radius: 10px;
+            padding: 14px;
+        }
+
+        .capture-checklist li {
+            margin-bottom: 8px;
+        }
