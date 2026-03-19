@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manual de Desarrollo de Power BI</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="document-page">
+        <h1>Manual de Desarrollo de Power BI: Visualización de Datos</h1>
+        <p>Este manual documenta el proceso de construcción de un cuadro de mando en Power BI, desde la carga de datos hasta la visualización final para análisis de negocio.</p>
+
+        <div class="note">
+            <strong>Objetivo:</strong> dejar trazado el flujo completo de trabajo de Business Intelligence para que el proceso sea replicable y mantenible en futuras actualizaciones.
+        </div>
+
+        <div class="step">
+            <h2>1. Resumen de Fases de Desarrollo y Pasos Realizados</h2>
+            <p>El desarrollo se ha realizado siguiendo el flujo estándar de BI dividido en cuatro fases principales.</p>
+
+            <h3>Fase 1: Obtención de Datos</h3>
+            <p>Se ha utilizado el conector <strong>Obtener datos &gt; Excel</strong> para importar el archivo facilitado para la práctica.</p>
+
+            <div class="screenshot-container">
+                <img src="./assets/powerbi_fase1_navegador.png" alt="Ventana de navegación de Power BI seleccionando tablas">
+            </div>
+
+            <h3>Fase 2: Transformación de Datos (Power Query)</h3>
+            <p>Desde <strong>Transformar datos</strong> se abrió el Editor de Power Query para revisar tipos de datos, eliminar columnas innecesarias y tratar valores nulos mediante un proceso ETL reproducible.</p>
+
+            <div class="screenshot-container">
+                <img src="./assets/powerbi_fase2_powerquery.png" alt="Editor de Power Query con pasos aplicados">
+            </div>
+
+            <h3>Fase 3: Modelado de Datos</h3>
+            <p>Con los datos limpios, se validaron en la vista <strong>Modelo</strong> las relaciones entre tablas de hechos y dimensiones, priorizando cardinalidades 1:N y preparando medidas para el análisis.</p>
+
+            <div class="screenshot-container">
+                <img src="./assets/powerbi_fase3_modelo.png" alt="Vista de modelo de Power BI con relaciones entre tablas">
+            </div>
+
+            <h3>Fase 4: Visualización de Datos</h3>
+            <p>Se configuró el lienzo del informe para representar los indicadores de negocio mediante visualizaciones, ajustando diseño, etiquetas y formato para facilitar la toma de decisiones.</p>
+
+            <div class="screenshot-container">
+                <img src="./assets/powerbi_fase4_lienzo.png" alt="Lienzo final de Power BI con visualizaciones">
+            </div>
+
+            <div class="note">
+                <strong>Nota:</strong> las capturas insertadas son imágenes reales obtenidas de documentación oficial de Microsoft Learn para Power BI.
+            </div>
+        </div>
+
+        <div class="step">
+            <h2>2. Explicación Técnica de las Herramientas</h2>
+
+            <h3>Power Query</h3>
+            <p>Power Query es el motor de preparación y transformación de datos. Aunque se opera con interfaz gráfica, cada acción genera código en lenguaje M y queda registrada en la lista de <strong>Pasos aplicados</strong>. Este enfoque permite que la limpieza se ejecute automáticamente cada vez que se actualice el origen, sin repetir trabajo manual.</p>
+
+            <h3>DAX (Data Analysis Expressions)</h3>
+            <p>DAX es el lenguaje de fórmulas para modelado analítico en Power BI. A diferencia de Excel, trabaja con contexto de fila y contexto de filtro sobre tablas completas. En el proyecto se usa para crear <strong>Medidas</strong> dinámicas (que responden a filtros) y <strong>Columnas calculadas</strong> (cálculo persistente por fila).</p>
+
+            <h3>Gráficas (Visualizaciones)</h3>
+            <p>Las visualizaciones son la capa interactiva del informe. Su ventaja principal es el <strong>filtrado cruzado (cross-filtering)</strong>: al seleccionar una categoría en una gráfica, el resto se filtran o destacan automáticamente en el mismo contexto de análisis, habilitando exploración avanzada sin programación adicional.</p>
+        </div>
+
+        <div class="step" style="border-bottom: none;">
+            <h2>3. Referencias de Capturas</h2>
+            <ul>
+                <li><strong>Fase 1 (Navegador):</strong> documentación de conexión a datos en Power BI Desktop.</li>
+                <li><strong>Fase 2 (Power Query):</strong> documentación oficial del Editor de Power Query.</li>
+                <li><strong>Fase 3 (Modelo):</strong> documentación de relaciones de modelo en Power BI Desktop.</li>
+                <li><strong>Fase 4 (Lienzo):</strong> documentación de visualización y creación de informes.</li>
+            </ul>
+
+            <p>Fuentes:</p>
+            <ul>
+                <li><a href="https://learn.microsoft.com/es-es/power-bi/connect-data/desktop-connect-to-data" target="_blank" rel="noopener noreferrer">Conectarse a orígenes de datos en Power BI Desktop</a></li>
+                <li><a href="https://learn.microsoft.com/es-es/power-query/power-query-ui" target="_blank" rel="noopener noreferrer">La interfaz de usuario de Power Query</a></li>
+                <li><a href="https://learn.microsoft.com/es-es/power-bi/transform-model/desktop-relationships-understand" target="_blank" rel="noopener noreferrer">Relaciones de modelo en Power BI Desktop</a></li>
+                <li><a href="https://learn.microsoft.com/es-es/power-bi/create-reports/desktop-report-view" target="_blank" rel="noopener noreferrer">Vista de informe en Power BI Desktop</a></li>
+            </ul>
+        </div>
+
+        <hr style="margin: 40px 0; border: 0; border-top: 1px solid #ddd;">
+
+        <div style="text-align: center; margin-bottom: 40px;">
+            <a href="index.html" style="
+                display: inline-block;
+                background-color: #2c3e50;
+                color: white;
+                padding: 12px 30px;
+                text-decoration: none;
+                border-radius: 50px;
+                font-weight: bold;
+                box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+                transition: transform 0.2s;
+            " onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                &larr; Volver a la Portada
+            </a>
+        </div>
+
+    </div>
+
+</body>
+</html>
