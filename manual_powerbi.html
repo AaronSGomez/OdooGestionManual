@@ -74,6 +74,41 @@
         .kpi-box ul {
             margin: 8px 0 0;
         }
+
+        .quick-start {
+            background: #fffdf7;
+            border: 1px solid #f2dfb4;
+            border-left: 5px solid #e0a800;
+            border-radius: 10px;
+            padding: 14px;
+            margin: 18px 0;
+        }
+
+        .dataset-list li {
+            margin-bottom: 10px;
+        }
+
+        .step-code {
+            background: #1f2937;
+            color: #f9fafb;
+            border-radius: 10px;
+            padding: 14px;
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 14px;
+            overflow-x: auto;
+            margin: 12px 0;
+        }
+
+        .capture-checklist {
+            background: #f5f9ff;
+            border: 1px solid #dbeafe;
+            border-radius: 10px;
+            padding: 14px;
+        }
+
+        .capture-checklist li {
+            margin-bottom: 8px;
+        }
     </style>
 </head>
 <body>
@@ -184,7 +219,7 @@ DIVIDE(
             </div>
         </div>
 
-        <div class="step" style="border-bottom: none;">
+        <div class="step">
             <h2>3. Guía de Desarrollo Reutilizable</h2>
             <p>Checklist que he seguido para poder rehacer el dashboard desde cero en cualquier iteración del proyecto:</p>
             <ul>
@@ -200,6 +235,109 @@ DIVIDE(
             </div>
 
             <p>Este enfoque deja el manual preparado para evolución: nuevos campos, nuevas métricas y nuevas páginas de informe, manteniendo coherencia técnica y visual.</p>
+        </div>
+
+        <div class="step" style="border-bottom: none;">
+            <h2>4. Step by Step Completo (Réplica Real del Proyecto)</h2>
+            <p>Este bloque sirve como manual de aprendizaje rápido para replicar el proyecto desde cero y generar las capturas exigidas en la práctica.</p>
+
+            <div class="quick-start">
+                <strong>Tiempo estimado:</strong> 60 a 90 minutos.<br>
+                <strong>Resultado:</strong> archivo .pbix funcional + 4 capturas del proceso (carga, transformación, modelo y dashboard).
+            </div>
+
+            <h3>4.1 Datasets de Microsoft recomendados para importar</h3>
+            <ul class="dataset-list">
+                <li><strong>Financial Sample (Excel):</strong> dataset oficial para pruebas de ventas y rentabilidad. Descarga desde Microsoft Learn o desde la documentación de Power BI Samples.</li>
+                <li><strong>Contoso Sales Sample:</strong> modelo de ventas retail con fechas, productos y clientes (muy útil para modelo estrella).</li>
+                <li><strong>Adventure Works DW (tablas de ejemplo):</strong> ideal para practicar relaciones y jerarquías de tiempo.</li>
+                <li><strong>Northwind (OData):</strong> fuente pública para practicar conexión, transformación y combinación de consultas.</li>
+            </ul>
+
+            <p>Enlaces de referencia para descarga/uso:</p>
+            <ul>
+                <li><a href="https://learn.microsoft.com/power-bi/create-reports/sample-financial-download" target="_blank" rel="noopener noreferrer">Financial Sample de Power BI</a></li>
+                <li><a href="https://learn.microsoft.com/power-bi/guidance/star-schema" target="_blank" rel="noopener noreferrer">Guía de modelo estrella (Contoso/Adventure Works)</a></li>
+                <li><a href="https://services.odata.org/V4/Northwind/Northwind.svc/" target="_blank" rel="noopener noreferrer">Northwind OData público</a></li>
+                <li><a href="https://learn.microsoft.com/power-bi/connect-data/service-odata-feed" target="_blank" rel="noopener noreferrer">Cómo conectar un feed OData en Power BI</a></li>
+            </ul>
+
+            <h3>4.2 Preparación de carpeta de trabajo</h3>
+            <ol>
+                <li>Crea una carpeta local llamada <strong>powerbi_practica_base</strong>.</li>
+                <li>Guarda dentro el dataset elegido (por ejemplo, <strong>financial_sample.xlsx</strong>).</li>
+                <li>Abre Power BI Desktop y crea un archivo nuevo.</li>
+                <li>Guarda el archivo como <strong>manual_powerbi_practica.pbix</strong>.</li>
+            </ol>
+
+            <h3>4.3 Carga de datos (captura 1 obligatoria)</h3>
+            <ol>
+                <li>Ve a <strong>Obtener datos</strong> y selecciona <strong>Excel</strong> (o <strong>OData</strong> si usas Northwind).</li>
+                <li>En el Navegador marca una tabla principal de hechos y, si existe, una tabla de dimensiones.</li>
+                <li>Antes de pulsar Cargar, realiza la primera captura: panel Navegador con las tablas seleccionadas.</li>
+            </ol>
+
+            <h3>4.4 Transformación en Power Query (captura 2 obligatoria)</h3>
+            <ol>
+                <li>Pulsa <strong>Transformar datos</strong>.</li>
+                <li>Aplica estos pasos mínimos:</li>
+            </ol>
+            <div class="step-code">1) Cambiar tipo de Fecha a date
+2) Cambiar tipo de Importe a decimal
+3) Eliminar columnas no analíticas
+4) Quitar filas duplicadas
+5) Reemplazar nulos de texto por "Sin dato"</div>
+            <ol>
+                <li>Haz la segunda captura con el panel <strong>Pasos aplicados</strong> visible a la derecha.</li>
+                <li>Pulsa <strong>Cerrar y aplicar</strong>.</li>
+            </ol>
+
+            <h3>4.5 Modelado de datos (captura 3 obligatoria)</h3>
+            <ol>
+                <li>Cambia a vista <strong>Modelo</strong>.</li>
+                <li>Crea relaciones 1:N entre dimensiones (Fecha, Cliente, Producto) y la tabla de hechos.</li>
+                <li>Verifica que la dirección de filtro sea coherente y no haya bucles ambiguos.</li>
+                <li>Haz la tercera captura mostrando claramente tablas y relaciones.</li>
+            </ol>
+
+            <h3>4.6 DAX mínimo para réplica</h3>
+            <p>Crea estas medidas en la tabla de hechos:</p>
+            <div class="step-code">Ventas Totales = SUM(FactVentas[Importe])
+
+Coste Total = SUM(FactVentas[Coste])
+
+Margen = [Ventas Totales] - [Coste Total]
+
+Margen % = DIVIDE([Margen], [Ventas Totales], 0)</div>
+
+            <h3>4.7 Visualización final (captura 4 obligatoria)</h3>
+            <ol>
+                <li>En vista <strong>Informe</strong>, crea una página con:</li>
+            </ol>
+            <ul>
+                <li>Tarjetas KPI: Ventas Totales, Margen y Margen %.</li>
+                <li>Gráfico de líneas: Ventas por Mes.</li>
+                <li>Gráfico de barras: Ventas por Categoría.</li>
+                <li>Segmentador de Fecha y Segmentador de Cliente.</li>
+            </ul>
+            <ol>
+                <li>Configura interacciones para habilitar filtrado cruzado.</li>
+                <li>Haz la cuarta captura con el dashboard completo visible.</li>
+            </ol>
+
+            <h3>4.8 Checklist final de entrega</h3>
+            <div class="capture-checklist">
+                <ul>
+                    <li>Captura 1: Navegador de carga con tablas seleccionadas.</li>
+                    <li>Captura 2: Power Query con Pasos aplicados visibles.</li>
+                    <li>Captura 3: Vista Modelo con relaciones 1:N.</li>
+                    <li>Captura 4: Dashboard final con KPIs y gráficas.</li>
+                    <li>Archivo .pbix guardado y funcionando.</li>
+                    <li>Validación de totales contra la fuente original completada.</li>
+                </ul>
+            </div>
+
+            <p>Si completas este flujo, tendrás una guía real y replicable para obtener exactamente las capturas solicitadas y documentar el proceso de desarrollo de Power BI de forma profesional.</p>
         </div>
 
         <hr style="margin: 40px 0; border: 0; border-top: 1px solid #ddd;">
