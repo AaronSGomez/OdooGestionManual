@@ -5,51 +5,145 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manual de Desarrollo de Power BI</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        .guide-hero {
+            background: linear-gradient(135deg, #714b67 0%, #2c3e50 100%);
+            color: #fff;
+            padding: 24px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            box-shadow: 0 8px 20px rgba(44, 62, 80, 0.25);
+        }
+
+        .guide-hero h2 {
+            color: #fff;
+            margin-top: 0;
+            margin-bottom: 10px;
+        }
+
+        .guide-hero p {
+            margin: 0;
+        }
+
+        .dev-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 12px;
+            margin: 18px 0;
+        }
+
+        .dev-card {
+            background: #f8f7fb;
+            border: 1px solid #e5dce3;
+            border-left: 4px solid #714b67;
+            padding: 12px;
+            border-radius: 8px;
+        }
+
+        .dev-card h4 {
+            margin: 0 0 6px;
+            color: #2c3e50;
+            font-size: 0.98rem;
+        }
+
+        .dev-card p {
+            margin: 0;
+            font-size: 0.95rem;
+        }
+
+        .phase-tag {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 0.2px;
+            margin-bottom: 8px;
+            background: #e8f4fd;
+            color: #1f5f8b;
+        }
+
+        .kpi-box {
+            background: #f4fbf6;
+            border: 1px solid #cde8d5;
+            border-radius: 8px;
+            padding: 14px;
+            margin-top: 18px;
+        }
+
+        .kpi-box ul {
+            margin: 8px 0 0;
+        }
+    </style>
 </head>
 <body>
 
     <div class="document-page">
         <h1>Manual de Desarrollo de Power BI: Visualización de Datos</h1>
-        <p>Este manual documenta el proceso de construcción de un cuadro de mando en Power BI, desde la carga de datos hasta la visualización final para análisis de negocio.</p>
+        <p>Esta guía recoge un flujo base para construir un dashboard de Power BI usando datos genéricos de negocio, con foco en buenas prácticas de desarrollo y mantenimiento.</p>
+
+        <div class="guide-hero">
+            <h2>Enfoque de Desarrollo</h2>
+            <p>El objetivo no es solo "hacer gráficas", sino construir un informe mantenible: datos limpios, modelo coherente, métricas claras y visualización orientada a decisiones de negocio.</p>
+        </div>
 
         <div class="note">
-            <strong>Objetivo:</strong> dejar trazado el flujo completo de trabajo de Business Intelligence para que el proceso sea replicable y mantenible en futuras actualizaciones.
+            <strong>Alcance de esta versión:</strong> se usan ejemplos visuales genéricos creados para la guía (sin capturas de Windows), de forma que puedas reutilizar el proceso en cualquier proyecto.
         </div>
 
         <div class="step">
             <h2>1. Resumen de Fases de Desarrollo y Pasos Realizados</h2>
-            <p>El desarrollo se ha realizado siguiendo el flujo estándar de BI dividido en cuatro fases principales.</p>
+            <p>El desarrollo se ha organizado en cuatro fases. En cada una incluyo qué se hizo, por qué se hizo y qué validación se aplicó para asegurar calidad del dato.</p>
 
             <h3>Fase 1: Obtención de Datos</h3>
-            <p>Se ha utilizado el conector <strong>Obtener datos &gt; Excel</strong> para importar el archivo facilitado para la práctica.</p>
+            <span class="phase-tag">Carga inicial</span>
+            <p>Partimos de tres fuentes típicas: ventas, clientes y catálogo de productos. La extracción mantiene granularidad por fecha y por entidad para soportar análisis de detalle y agregados mensuales.</p>
 
             <div class="screenshot-container">
-                <img src="./assets/powerbi_fase1_navegador.png" alt="Ventana de navegación de Power BI seleccionando tablas">
+                <img src="./assets/powerbi_fase1_fuentes.svg" alt="Diagrama de fuentes de datos genéricas para Power BI">
             </div>
 
             <h3>Fase 2: Transformación de Datos (Power Query)</h3>
-            <p>Desde <strong>Transformar datos</strong> se abrió el Editor de Power Query para revisar tipos de datos, eliminar columnas innecesarias y tratar valores nulos mediante un proceso ETL reproducible.</p>
+            <span class="phase-tag">Limpieza y normalización</span>
+            <p>En Power Query se aplican reglas de limpieza: tipado consistente, eliminación de duplicados, tratamiento de nulos y estandarización de categorías. El objetivo es dejar una capa de datos fiable antes del modelado.</p>
 
             <div class="screenshot-container">
-                <img src="./assets/powerbi_fase2_powerquery.png" alt="Editor de Power Query con pasos aplicados">
+                <img src="./assets/powerbi_fase2_transformacion.svg" alt="Pipeline genérico de transformación de datos en Power Query">
             </div>
 
             <h3>Fase 3: Modelado de Datos</h3>
-            <p>Con los datos limpios, se validaron en la vista <strong>Modelo</strong> las relaciones entre tablas de hechos y dimensiones, priorizando cardinalidades 1:N y preparando medidas para el análisis.</p>
+            <span class="phase-tag">Modelo analítico</span>
+            <p>Se construye un esquema estrella con una tabla de hechos y dimensiones de fecha, cliente y producto. Se revisa cardinalidad 1:N y dirección de filtro para asegurar resultados correctos en DAX.</p>
 
             <div class="screenshot-container">
-                <img src="./assets/powerbi_fase3_modelo.png" alt="Vista de modelo de Power BI con relaciones entre tablas">
+                <img src="./assets/powerbi_fase3_modelo.svg" alt="Modelo de datos genérico en esquema estrella">
             </div>
 
             <h3>Fase 4: Visualización de Datos</h3>
-            <p>Se configuró el lienzo del informe para representar los indicadores de negocio mediante visualizaciones, ajustando diseño, etiquetas y formato para facilitar la toma de decisiones.</p>
+            <span class="phase-tag">Dashboard final</span>
+            <p>Se diseña una página de control con KPIs ejecutivos, tendencia temporal y análisis por categoría. El filtrado cruzado permite pasar de la visión global al detalle con un único contexto de filtros.</p>
 
             <div class="screenshot-container">
-                <img src="./assets/powerbi_fase4_lienzo.png" alt="Lienzo final de Power BI con visualizaciones">
+                <img src="./assets/powerbi_fase4_dashboard.svg" alt="Maqueta genérica de dashboard final en Power BI">
             </div>
 
             <div class="note">
-                <strong>Nota:</strong> las capturas insertadas son imágenes reales obtenidas de documentación oficial de Microsoft Learn para Power BI.
+                <strong>Validación funcional:</strong> antes de publicar, contrasta totales de ventas, recuento de clientes y margen con la fuente original para verificar que no haya desviaciones por modelado.
+            </div>
+
+            <div class="dev-grid">
+                <div class="dev-card">
+                    <h4>Regla 1: métrica única</h4>
+                    <p>Cada KPI tiene una única definición DAX para evitar cálculos distintos en páginas diferentes.</p>
+                </div>
+                <div class="dev-card">
+                    <h4>Regla 2: modelo ligero</h4>
+                    <p>Se eliminaron columnas no analíticas en origen para reducir peso del dataset.</p>
+                </div>
+                <div class="dev-card">
+                    <h4>Regla 3: trazabilidad</h4>
+                    <p>Las transformaciones críticas se documentaron para facilitar mantenimiento.</p>
+                </div>
             </div>
         </div>
 
@@ -57,31 +151,55 @@
             <h2>2. Explicación Técnica de las Herramientas</h2>
 
             <h3>Power Query</h3>
-            <p>Power Query es el motor de preparación y transformación de datos. Aunque se opera con interfaz gráfica, cada acción genera código en lenguaje M y queda registrada en la lista de <strong>Pasos aplicados</strong>. Este enfoque permite que la limpieza se ejecute automáticamente cada vez que se actualice el origen, sin repetir trabajo manual.</p>
+            <p>Power Query es el bloque ETL del proyecto. Aquí se definieron los pasos de estandarización (tipos, columnas, valores faltantes, uniones y reglas de limpieza). La ventaja es que el proceso queda automatizado y se replica en cada actualización sin intervención manual.</p>
 
             <h3>DAX (Data Analysis Expressions)</h3>
-            <p>DAX es el lenguaje de fórmulas para modelado analítico en Power BI. A diferencia de Excel, trabaja con contexto de fila y contexto de filtro sobre tablas completas. En el proyecto se usa para crear <strong>Medidas</strong> dinámicas (que responden a filtros) y <strong>Columnas calculadas</strong> (cálculo persistente por fila).</p>
+            <p>DAX aporta la capa de lógica analítica. Se empleó para medidas dinámicas de negocio, por ejemplo: coste por hora efectiva, facturación por periodo, saldo de bolsa de horas y porcentaje de desviación. Todo cálculo se diseñó respetando contexto de filtro para soportar segmentaciones por fecha y proyecto.</p>
+
+            <div class="file-header">Ejemplo de medidas DAX del proyecto</div>
+            <div class="file-content">
+<pre>Horas Totales = SUM(TrabajoDiario[horas])
+
+Facturacion Total = SUM(Facturacion[importe_final])
+
+Desviacion Horas % =
+DIVIDE(
+    [Horas Totales] - SUM(Proyectos[horas_estimadas]),
+    SUM(Proyectos[horas_estimadas]),
+    0
+)</pre>
+            </div>
 
             <h3>Gráficas (Visualizaciones)</h3>
-            <p>Las visualizaciones son la capa interactiva del informe. Su ventaja principal es el <strong>filtrado cruzado (cross-filtering)</strong>: al seleccionar una categoría en una gráfica, el resto se filtran o destacan automáticamente en el mismo contexto de análisis, habilitando exploración avanzada sin programación adicional.</p>
+            <p>Las visualizaciones se organizaron por objetivo: diagnóstico rápido (tarjetas KPI), análisis temporal (línea/área), composición de costes (barras apiladas) y control operativo (tablas de detalle). El filtrado cruzado entre visuales permite pasar de visión ejecutiva a detalle técnico en pocos clics.</p>
+
+            <div class="kpi-box">
+                <strong>KPI priorizados en esta guía:</strong>
+                <ul>
+                    <li>Horas consumidas vs horas contratadas.</li>
+                    <li>Facturación mensual acumulada.</li>
+                    <li>Margen operativo estimado por proyecto.</li>
+                    <li>Proyectos con riesgo por sobreconsumo.</li>
+                </ul>
+            </div>
         </div>
 
         <div class="step" style="border-bottom: none;">
-            <h2>3. Referencias de Capturas</h2>
+            <h2>3. Guía de Desarrollo Reutilizable</h2>
+            <p>Checklist que he seguido para poder rehacer el dashboard desde cero en cualquier iteración del proyecto:</p>
             <ul>
-                <li><strong>Fase 1 (Navegador):</strong> documentación de conexión a datos en Power BI Desktop.</li>
-                <li><strong>Fase 2 (Power Query):</strong> documentación oficial del Editor de Power Query.</li>
-                <li><strong>Fase 3 (Modelo):</strong> documentación de relaciones de modelo en Power BI Desktop.</li>
-                <li><strong>Fase 4 (Lienzo):</strong> documentación de visualización y creación de informes.</li>
+                <li>Definir tabla de hechos principal y granularidad temporal antes de crear visuales.</li>
+                <li>Normalizar IDs y claves de relación desde Power Query para evitar errores en DAX.</li>
+                <li>Crear primero medidas base (horas, coste, ingreso), luego métricas derivadas.</li>
+                <li>Aplicar formato de página y tema al final, no al inicio, para no perder tiempo en iteraciones.</li>
+                <li>Comparar siempre los totales de Power BI con el ERP antes de publicar informe.</li>
             </ul>
 
-            <p>Fuentes:</p>
-            <ul>
-                <li><a href="https://learn.microsoft.com/es-es/power-bi/connect-data/desktop-connect-to-data" target="_blank" rel="noopener noreferrer">Conectarse a orígenes de datos en Power BI Desktop</a></li>
-                <li><a href="https://learn.microsoft.com/es-es/power-query/power-query-ui" target="_blank" rel="noopener noreferrer">La interfaz de usuario de Power Query</a></li>
-                <li><a href="https://learn.microsoft.com/es-es/power-bi/transform-model/desktop-relationships-understand" target="_blank" rel="noopener noreferrer">Relaciones de modelo en Power BI Desktop</a></li>
-                <li><a href="https://learn.microsoft.com/es-es/power-bi/create-reports/desktop-report-view" target="_blank" rel="noopener noreferrer">Vista de informe en Power BI Desktop</a></li>
-            </ul>
+            <div class="screenshot-container">
+                <img src="./assets/powerbi_fase4_dashboard.svg" alt="Referencia visual genérica para control de KPIs y alertas">
+            </div>
+
+            <p>Este enfoque deja el manual preparado para evolución: nuevos campos, nuevas métricas y nuevas páginas de informe, manteniendo coherencia técnica y visual.</p>
         </div>
 
         <hr style="margin: 40px 0; border: 0; border-top: 1px solid #ddd;">

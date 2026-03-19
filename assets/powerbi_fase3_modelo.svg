@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="700" viewBox="0 0 1200 700">
+  <defs>
+    <style>
+      .title { font: 700 34px Segoe UI, Arial, sans-serif; fill: #1f2937; }
+      .subtitle { font: 500 20px Segoe UI, Arial, sans-serif; fill: #4b5563; }
+      .tbl { fill: #fff; stroke: #cbd5e1; stroke-width: 2; rx: 10; }
+      .th { fill: #e2e8f0; }
+      .h { font: 700 18px Segoe UI, Arial, sans-serif; fill: #0f172a; }
+      .t { font: 500 15px Segoe UI, Arial, sans-serif; fill: #334155; }
+      .fact { fill: #fee2e2; }
+      .dim { fill: #dbeafe; }
+    </style>
+  </defs>
+
+  <rect width="1200" height="700" fill="#f8fafc"/>
+  <text x="60" y="70" class="title">Fase 3 · Modelado de Datos (Esquema Estrella)</text>
+  <text x="60" y="102" class="subtitle">Relaciones 1:N entre dimensiones y tabla de hechos</text>
+
+  <rect x="455" y="240" width="290" height="230" class="tbl"/>
+  <rect x="455" y="240" width="290" height="52" class="th fact"/>
+  <text x="475" y="272" class="h">FactVentas</text>
+  <text x="475" y="315" class="t">• FechaKey</text>
+  <text x="475" y="342" class="t">• ClienteKey</text>
+  <text x="475" y="369" class="t">• ProductoKey</text>
+  <text x="475" y="396" class="t">• Importe</text>
+  <text x="475" y="423" class="t">• Coste</text>
+
+  <rect x="80" y="130" width="260" height="170" class="tbl"/>
+  <rect x="80" y="130" width="260" height="44" class="th dim"/>
+  <text x="98" y="158" class="h">DimFecha</text>
+  <text x="98" y="198" class="t">• FechaKey (PK)</text>
+  <text x="98" y="224" class="t">• Mes</text>
+  <text x="98" y="250" class="t">• Trimestre</text>
+
+  <rect x="80" y="400" width="260" height="170" class="tbl"/>
+  <rect x="80" y="400" width="260" height="44" class="th dim"/>
+  <text x="98" y="428" class="h">DimCliente</text>
+  <text x="98" y="468" class="t">• ClienteKey (PK)</text>
+  <text x="98" y="494" class="t">• Segmento</text>
+  <text x="98" y="520" class="t">• Pais</text>
+
+  <rect x="860" y="260" width="260" height="170" class="tbl"/>
+  <rect x="860" y="260" width="260" height="44" class="th dim"/>
+  <text x="878" y="288" class="h">DimProducto</text>
+  <text x="878" y="328" class="t">• ProductoKey (PK)</text>
+  <text x="878" y="354" class="t">• Categoria</text>
+  <text x="878" y="380" class="t">• Linea</text>
+
+  <line x1="340" y1="220" x2="455" y2="300" stroke="#334155" stroke-width="3"/>
+  <line x1="340" y1="485" x2="455" y2="390" stroke="#334155" stroke-width="3"/>
+  <line x1="745" y1="345" x2="860" y2="345" stroke="#334155" stroke-width="3"/>
+
+  <text x="365" y="250" class="t">1 : N</text>
+  <text x="360" y="455" class="t">1 : N</text>
+  <text x="780" y="332" class="t">1 : N</text>
+</svg>

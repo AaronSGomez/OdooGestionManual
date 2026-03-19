@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="700" viewBox="0 0 1200 700">
+  <defs>
+    <style>
+      .title { font: 700 34px Segoe UI, Arial, sans-serif; fill: #1f2937; }
+      .subtitle { font: 500 20px Segoe UI, Arial, sans-serif; fill: #4b5563; }
+      .card { fill: #fff; stroke: #d1d5db; stroke-width: 2; rx: 10; }
+      .h { font: 700 18px Segoe UI, Arial, sans-serif; fill: #0f172a; }
+      .k { font: 700 30px Segoe UI, Arial, sans-serif; fill: #111827; }
+      .t { font: 500 14px Segoe UI, Arial, sans-serif; fill: #4b5563; }
+      .bar1 { fill: #3b82f6; }
+      .bar2 { fill: #10b981; }
+      .line { fill: none; stroke: #f59e0b; stroke-width: 4; }
+    </style>
+  </defs>
+
+  <rect width="1200" height="700" fill="#f3f4f6"/>
+  <text x="60" y="70" class="title">Fase 4 · Visualización (Dashboard Genérico)</text>
+  <text x="60" y="102" class="subtitle">KPIs + tendencia mensual + análisis por categoría</text>
+
+  <rect x="60" y="140" width="250" height="120" class="card"/>
+  <text x="80" y="180" class="h">Ventas Totales</text>
+  <text x="80" y="220" class="k">€ 482.400</text>
+
+  <rect x="330" y="140" width="250" height="120" class="card"/>
+  <text x="350" y="180" class="h">Margen Medio</text>
+  <text x="350" y="220" class="k">23,6 %</text>
+
+  <rect x="600" y="140" width="250" height="120" class="card"/>
+  <text x="620" y="180" class="h">Clientes Activos</text>
+  <text x="620" y="220" class="k">318</text>
+
+  <rect x="870" y="140" width="270" height="120" class="card"/>
+  <text x="890" y="180" class="h">Alertas</text>
+  <text x="890" y="220" class="k">12</text>
+
+  <rect x="60" y="290" width="540" height="350" class="card"/>
+  <text x="80" y="325" class="h">Ventas por Mes</text>
+  <line x1="90" y1="610" x2="560" y2="610" stroke="#9ca3af"/>
+  <line x1="90" y1="350" x2="90" y2="610" stroke="#9ca3af"/>
+  <polyline points="100,560 160,520 220,530 280,470 340,455 400,430 460,390 520,365" class="line"/>
+
+  <rect x="630" y="290" width="510" height="350" class="card"/>
+  <text x="650" y="325" class="h">Top Categorías</text>
+  <rect x="670" y="370" width="320" height="36" class="bar1"/>
+  <rect x="670" y="425" width="280" height="36" class="bar2"/>
+  <rect x="670" y="480" width="230" height="36" class="bar1"/>
+  <rect x="670" y="535" width="180" height="36" class="bar2"/>
+  <text x="1000" y="394" class="t">Software</text>
+  <text x="960" y="449" class="t">Servicios</text>
+  <text x="910" y="504" class="t">Soporte</text>
+  <text x="860" y="559" class="t">Consultoría</text>
+</svg>
