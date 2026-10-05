@@ -1,5 +1,4 @@
-```
-# 🚀 FireApp ERP - Gestión de Proyectos de Software (Odoo 18)
+# Gestión de Proyectos de Software (Odoo 18)
 
 ![Odoo Version](https://img.shields.io/badge/Odoo-18.0-purple?style=for-the-badge&logo=odoo)
 ![License](https://img.shields.io/badge/Licencia-LGPL--3-blue?style=for-the-badge)
@@ -110,5 +109,3 @@ software_erp/
 ## 📄 Licencia
 
 Este proyecto se distribuye bajo la licencia **LGPL-3** (GNU Lesser General Public License v3.0). Consulta el archivo `LICENSE` para más información.
-
-```
