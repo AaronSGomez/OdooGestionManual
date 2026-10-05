@@ -1,10 +1,14 @@
+```
 # 🚀 FireApp ERP - Gestión de Proyectos de Software (Odoo 18)
 
 ![Odoo Version](https://img.shields.io/badge/Odoo-18.0-purple?style=for-the-badge&logo=odoo)
 ![License](https://img.shields.io/badge/Licencia-LGPL--3-blue?style=for-the-badge)
 ![Status](https://img.shields.io/badge/Estado-Estable-success?style=for-the-badge)
+![Manual Web](https://img.shields.io/badge/Manual-Online-black?style=for-the-badge&logo=vercel)
 
 **FireApp ERP** es un módulo personalizado para Odoo 18 diseñado específicamente para **empresas de desarrollo de software**. Permite gestionar el ciclo de vida económico completo de un proyecto: desde la venta del paquete de horas inicial hasta la imputación diaria de trabajo y la facturación recurrente mensual.
+
+📖 **Manual Interactivo y Documentación:** [odoo-gestion-manual.vercel.app](https://odoo-gestion-manual.vercel.app/)
 
 ---
 
@@ -48,7 +52,6 @@
 |:---:|:---:|
 | ![Ficha Proyecto](assets/semaforo.png) | ![Facturacion](assets/facturacion.png) |
 
-
 ---
 
 ## 🛠️ Instalación
@@ -58,15 +61,13 @@
 - Python 3.10+.
 
 ### Pasos
-1. **Clonar el repositorio** en tu carpeta de addons personalizados:
-   ```bash
+1. **Clonar el repositorio** en la carpeta de addons personalizados:
    cd /opt/odoo18/odoo/custom
-   git clone [https://github.com/tu_usuario/software_erp.git](https://github.com/tu_usuario/software_erp.git)
-   ```
+   git clone https://github.com/AaronSGomez/software_erp.git
+
 2. **Reiniciar el servicio de Odoo** para cargar el nuevo módulo:
-   ```bash
    sudo systemctl restart odoo18.service
-   ```
+
 3. **Actualizar la lista de aplicaciones** en Odoo:
    - Activa el *Modo Desarrollador* (Ajustes ➡️ Activar modo desarrollador).
    - Ve al menú superior *Aplicaciones* ➡️ *Actualizar lista de aplicaciones*.
@@ -79,11 +80,7 @@
 ## 📂 Estructura del Proyecto
 
 Este módulo sigue la estructura estándar de Odoo 18:
-## 📂 Estructura del Proyecto
 
-Este módulo sigue la estructura estándar de Odoo 18:
-
-```text
 software_erp/
 ├── __init__.py              # Inicializador del paquete Python
 ├── __manifest__.py          # Metadatos, dependencias y carga de archivos
@@ -98,19 +95,20 @@ software_erp/
 │   └── demo_data.xml        # Proyectos, facturas y commits de ejemplo
 └── static/
     └── description/         # Recursos estáticos (Icono del módulo)
-```
 
 ---
 
 ## 👤 Autor
 
 **Aarón Gómez Abella**
-- 🎓 Estudiante de 2º DAM - Sistemas de Gestión Empresarial
-- 📧 nomeacuerdobien@gmail.com
-- 🔗 https://www.linkedin.com/in/aaron-gomez-abella-b6667174/
+- 🌐 [Portfolio Personal](https://www.aaronsgomez.es/)
+- 🐙 [GitHub Profile](https://github.com/AaronSGomez)
+- 💼 [LinkedIn](https://www.linkedin.com/in/aaronsgomez/))
 
 ---
 
 ## 📄 Licencia
 
-Este proyecto se distribuye bajo la licencia **LGPL-3** (GNU Lesser General Public License v3.0).
+Este proyecto se distribuye bajo la licencia **LGPL-3** (GNU Lesser General Public License v3.0). Consulta el archivo `LICENSE` para más información.
+
+```
