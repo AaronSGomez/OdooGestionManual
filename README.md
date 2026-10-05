@@ -79,7 +79,7 @@
 ## 📂 Estructura del Proyecto
 
 Este módulo sigue la estructura estándar de Odoo 18:
-
+```
 software_erp/
 ├── __init__.py              # Inicializador del paquete Python
 ├── __manifest__.py          # Metadatos, dependencias y carga de archivos
@@ -94,7 +94,7 @@ software_erp/
 │   └── demo_data.xml        # Proyectos, facturas y commits de ejemplo
 └── static/
     └── description/         # Recursos estáticos (Icono del módulo)
-
+```
 ---
 
 ## 👤 Autor
